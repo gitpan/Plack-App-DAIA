@@ -9,34 +9,38 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  'ABSTRACT' => 'DAIA Server as Plack application',
-  'AUTHOR' => 'Jakob Voss',
-  'BUILD_REQUIRES' => {
-    'HTTP::Request::Common' => '0',
-    'Plack::Test' => '0',
-    'Test::More' => '0'
+  "ABSTRACT" => "DAIA Server as Plack application",
+  "AUTHOR" => "Jakob Voss",
+  "BUILD_REQUIRES" => {
+    "HTTP::Request::Common" => 0,
+    "Plack::Test" => 0,
+    "Test::More" => 0
   },
-  'CONFIGURE_REQUIRES' => {
-    'ExtUtils::MakeMaker' => '6.30'
+  "CONFIGURE_REQUIRES" => {
+    "ExtUtils::MakeMaker" => "6.30"
   },
-  'DISTNAME' => 'Plack-App-DAIA',
-  'EXE_FILES' => [],
-  'LICENSE' => 'perl',
-  'NAME' => 'Plack::App::DAIA',
-  'PREREQ_PM' => {
-    'CGI' => '0',
-    'DAIA' => '0',
-    'Encode' => '0',
-    'LWP::Simple' => '0',
-    'Plack::Component' => '0',
-    'Plack::Request' => '0',
-    'Plack::Util::Accessor' => '0',
-    'XML::LibXML' => '0',
-    'parent' => '0'
+  "DISTNAME" => "Plack-App-DAIA",
+  "EXE_FILES" => [],
+  "LICENSE" => "perl",
+  "NAME" => "Plack::App::DAIA",
+  "PREREQ_PM" => {
+    "CGI" => 0,
+    "DAIA" => "0.35",
+    "Encode" => 0,
+    "JSON" => 0,
+    "LWP::Simple" => 0,
+    "Plack::Component" => 0,
+    "Plack::Request" => 0,
+    "Plack::Util::Accessor" => 0,
+    "Scalar::Util" => 0,
+    "XML::LibXML" => 0,
+    "parent" => 0,
+    "strict" => 0,
+    "warnings" => 0
   },
-  'VERSION' => '0.1',
-  'test' => {
-    'TESTS' => 't/*.t'
+  "VERSION" => "0.2",
+  "test" => {
+    "TESTS" => "t/*.t"
   }
 );
 

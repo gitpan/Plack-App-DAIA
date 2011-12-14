@@ -1,8 +1,10 @@
+Changes
 LICENSE
 MANIFEST
 META.yml
 Makefile.PL
 README
+app.psgi
 lib/Plack/App/DAIA.pm
 lib/Plack/App/DAIA/Validator.pm
 t/basic.t

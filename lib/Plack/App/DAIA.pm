@@ -1,15 +1,44 @@
 use strict;
 use warnings;
 package Plack::App::DAIA;
+{
+  $Plack::App::DAIA::VERSION = '0.2';
+}
 #ABSTRACT: DAIA Server as Plack application
 
 use parent 'Plack::Component';
 use LWP::Simple qw(get);
 use Encode;
+use JSON;
 use DAIA;
+use Scalar::Util qw(blessed);
 
 use Plack::Util::Accessor qw(xsd xslt warnings);
 use Plack::Request;
+
+# we do not want depend on the following modules
+our ($TRINE_MODEL, $TRINE_SERIALIZER, $RDF_NS, $GRAPHVIZ);
+BEGIN {
+    # optionally use RDF::Trine::Serializer
+    $TRINE_MODEL = 'RDF::Trine::Model';
+    $TRINE_SERIALIZER = 'RDF::Trine::Serializer';
+    eval "use $TRINE_MODEL; use $TRINE_SERIALIZER";
+    if ($@) {
+        $TRINE_MODEL = undef;
+        $TRINE_SERIALIZER = undef;
+    }
+    # optionally use RDF::NS
+    eval "use RDF::NS";
+    $RDF_NS = eval "RDF::NS->new('any')" unless $@;
+    # optionally use RDF::Trine::Exporter::GraphViz
+    eval "use RDF::Trine::Exporter::GraphViz";
+    $GRAPHVIZ = 'RDF::Trine::Exporter::GraphViz' unless $@;
+}
+
+sub prepare_app {
+    my $self = shift;
+    $self->warnings(1) unless defined $self->warnings;
+}
 
 sub call {
     my ($self, $env) = @_;
@@ -19,7 +48,9 @@ sub call {
     $id = "" unless defined $id;
     my $format = lc($req->param('format')) || "";
 
-    # TODO: do content negotiation if DAIA/RDF is enabled and no format was specified
+    if (!$format) {
+        # TODO: guess format via content negotiation
+    }
     
     my $daia = $self->retrieve( $id );
     my $status = 200;
@@ -47,15 +78,41 @@ sub as_psgi {
 
     my ($type, $content);
 
-    if ( $format eq 'json' ) {
+    if ( $TRINE_SERIALIZER and $format and $format !~ /^(rdfjson|json|xml)$/ ) {
+        my %opt;
+        $opt{namespaces} = $RDF_NS if $RDF_NS and $format ne 'rdfxml'; # NOTE: RDF/XML dumps all namespaces
+        my $ser;
+        if ( $GRAPHVIZ and $TRINE_MODEL and $format =~ /^(dot|svg)$/ ) {
+            $ser = $GRAPHVIZ->new( as => $format, %opt );
+        } else {
+            $ser = eval { $TRINE_SERIALIZER->new( $format, %opt ); };
+        }
+        if ($ser) {
+            # NOTE: We could get rid of RDF::Trine::Model if hashref converted directly to iterator
+            my $model = $TRINE_MODEL->temporary_model;
+            $model->add_hashref( $daia->rdfhash );
+            ($type) = $ser->media_types( $format );
+            $content = $ser->serialize_model_to_string( $model );
+        }
+    } 
+
+    if ( $format eq 'rdfjson' ) {
+        $type    = "application/javascript; charset=utf-8";
+        $content = JSON->new->pretty->encode($daia->rdfhash);
+        # TODO: other serializations
+    } elsif ( $format eq 'json' ) {
         $type    = "application/javascript; charset=utf-8";
         $content = $daia->json( $callback );
     
         # TODO: add rdf serialization formats
-    } else {
+    } elsif (!$content) {
         $type = "application/xml; charset=utf-8";
-        if ( $format ne 'xml' and $self->warnings ) {
-            $daia->addMessage( 'en' => 'please provide an explicit parameter format=xml', 300 );
+        if ( $self->warnings ) {
+            if ( not $format ) {
+                $daia->addMessage( 'en' => 'please provide an explicit parameter format=xml', 300 );
+            } elsif ( $format ne 'xml' ) {
+                $daia->addMessage( 'en' => 'unknown or unsupported format', 300 );
+            }
         }
         $content = $daia->xml( ( $self->xslt ? (xslt => $self->xslt) : () )  );
     }
@@ -65,8 +122,20 @@ sub as_psgi {
 
 1;
 
+
+__END__
+=pod
+
+=head1 NAME
+
+Plack::App::DAIA - DAIA Server as Plack application
+
+=head1 VERSION
+
+version 0.2
+
 =head1 SYNOPSIS
- 
+
     package Your::App;
     use parent 'Plack::App::DAIA';
 
@@ -81,25 +150,69 @@ sub as_psgi {
 
     1;
 
-
 =head1 DESCRIPTION
 
 This module implements a L<DAIA> server as PSGI application. It provides 
 serialization in DAIA/XML and DAIA/JSON and automatically adds some warnings
 and error messages. The core functionality must be implemented by deriving
-from this class and implementing the method C<retrieve>.
+from this class and implementing the method C<retrieve>. The following
+serialization formats are supported by default:
 
-=method retrieve ( $id )
+=over 4
+
+=item xml
+
+DAIA/XML format (default)
+
+=item json
+
+DAIA/JSON format
+
+=item rdfjson
+
+DAIA/RDF in RDF/JSON.
+
+=back
+
+In addition you get DAIA/RDF in several RDF formats (C<rdfxml>, 
+C<turtle>, and C<ntriples> if L<RDF::Trine> is installed. If L<RDF::NS> is
+installed, you also get known namespace prefixes for RDF/Turtle format.
+Furthermore the output formats C<svg> and C<dot> are supported if
+L<RDF::Trine::Exporter::GraphViz> is installed to visualize RDF graphs.
+
+=head1 METHODS
+
+=head2 new ( [%options] )
+
+Creates a new DAIA server. Known options are
+
+=over 4
+
+=item xslt
+
+Path of a DAIA XSLT client to attach to DAIA/XML responses.
+
+=item xsd
+
+Path of a DAIA XML Schema to validate DAIA/XML response.
+
+=item warnings
+
+Enable warnings in the DAIA response (enabled by default).
+
+=back
+
+=head2 retrieve ( $id )
 
 Must return a status and a L<DAIA::Response> object. Override this method
 if you derive an application from Plack::App::DAIA.
 
-=method as_psgi ( $status, $daia [, $format [, $callback ] ] )
+=head2 as_psgi ( $status, $daia [, $format [, $callback ] ] )
 
-Serializes a L<DAIA::Response> in some DAIA serialization format (C<xml> 
-by default) and returns a a PSGI response with given HTTP status code.
+Serializes a L<DAIA::Response> in some DAIA serialization format (C<xml> by
+default) and returns a a PSGI response with given HTTP status code.
 
-=method call
+=head2 call
 
 Core method of the L<Plack::Component>. You should not need to override this.
 
@@ -107,4 +220,16 @@ Core method of the L<Plack::Component>. You should not need to override this.
 
 L<Plack::App::DAIA::Validator>
 
+=head1 AUTHOR
+
+Jakob Voss
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Jakob Voss.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
 =cut
+
