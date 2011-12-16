@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA;
 {
-  $Plack::App::DAIA::VERSION = '0.3';
+  $Plack::App::DAIA::VERSION = '0.4';
 }
 #ABSTRACT: DAIA Server as Plack application
 
@@ -13,7 +13,7 @@ use JSON;
 use DAIA;
 use Scalar::Util qw(blessed);
 
-use Plack::Util::Accessor qw(xsd xslt warnings);
+use Plack::Util::Accessor qw(xsd xslt warnings code);
 use Plack::Request;
 
 our %FORMATS = DAIA->formats;
@@ -52,16 +52,15 @@ sub call {
 
 sub retrieve {
     my ($self, $id) = @_;
-    my $daia = response();
-    return (200 => $daia);
+    return $self->code ? $self->code->($id) : undef;
 }
 
 sub as_psgi {
     my ($self, $status, $daia, $format, $callback) = @_;
 
     my $type    = $FORMATS{$format};
-    my $content = $daia->serialize($format) if $type;
-    if (!$type) {
+    my $content = $daia->serialize($format) if $type and $format ne 'xml';
+    if (!$type || !$content) {
         $type = "application/xml; charset=utf-8";
         if ( $self->warnings ) {
             if ( not $format ) {
@@ -70,7 +69,7 @@ sub as_psgi {
                 $daia->addMessage( 'en' => 'unknown or unsupported format', 300 );
             }
         }
-        $content = $daia->xml( ( $self->xslt ? (xslt => $self->xslt) : () )  );
+        $content = $daia->xml( header => 1, xmlns => 1, ( $self->xslt ? (xslt => $self->xslt) : () )  );
     }
 
     return [ $status, [ "Content-Type" => $type ], [ encode('utf8',$content) ] ];
@@ -88,9 +87,11 @@ Plack::App::DAIA - DAIA Server as Plack application
 
 =head1 VERSION
 
-version 0.3
+version 0.4
 
 =head1 SYNOPSIS
+
+It is recommended to derive from this class:
 
     package Your::App;
     use parent 'Plack::App::DAIA';
@@ -105,6 +106,20 @@ version 0.3
     };
 
     1;
+
+Then create an C<app.psgi> that returns an instance of your class:
+
+    use Your::App;
+    Your::App->new;
+
+To quickly hack a DAIA server you can also put all into C<app.psgi>:
+
+    use Plack::App::DAIA;
+    my $app = Plack::App::DAIA->new( code => sub {
+        my $id = shift;
+        # ...construct and return DAIA object
+    } );
+    $app;
 
 =head1 DESCRIPTION
 
@@ -134,7 +149,8 @@ In addition you get DAIA/RDF in several RDF formats (C<rdfxml>,
 C<turtle>, and C<ntriples> if L<RDF::Trine> is installed. If L<RDF::NS> is
 installed, you also get known namespace prefixes for RDF/Turtle format.
 Furthermore the output formats C<svg> and C<dot> are supported if
-L<RDF::Trine::Exporter::GraphViz> is installed to visualize RDF graphs.
+L<RDF::Trine::Exporter::GraphViz> is installed to visualize RDF graphs 
+(you may need to make sure that C<dot> is in your C<$ENV{PATH}>).
 
 =head1 METHODS
 
@@ -156,12 +172,19 @@ Path of a DAIA XML Schema to validate DAIA/XML response.
 
 Enable warnings in the DAIA response (enabled by default).
 
+=item code
+
+Code reference to the retrieve method if you prefer not to create a
+module derived from this module.
+
 =back
 
 =head2 retrieve ( $id )
 
 Must return a status and a L<DAIA::Response> object. Override this method
-if you derive an application from Plack::App::DAIA.
+if you derive an application from Plack::App::DAIA. By default it either
+calls the retrieve code, as passed to the constructor, or returns undef,
+so a HTTP 500 error is returned.
 
 =head2 as_psgi ( $status, $daia [, $format [, $callback ] ] )
 

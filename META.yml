@@ -32,4 +32,4 @@ requires:
 resources:
   bugtracker: https://github.com/nichtich/Plack-App-DAIA/issues
   repository: https://github.com/nichtich/Plack-App-DAIA
-version: 0.3
+version: 0.4

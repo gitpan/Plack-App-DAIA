@@ -9,3 +9,4 @@ lib/Plack/App/DAIA.pm
 lib/Plack/App/DAIA/Validator.pm
 t/basic.t
 t/compile.t
+t/retrieve.t
