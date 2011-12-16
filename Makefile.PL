@@ -25,7 +25,7 @@ my %WriteMakefileArgs = (
   "NAME" => "Plack::App::DAIA",
   "PREREQ_PM" => {
     "CGI" => 0,
-    "DAIA" => "0.35",
+    "DAIA" => "0.4",
     "Encode" => 0,
     "JSON" => 0,
     "LWP::Simple" => 0,
@@ -38,7 +38,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.2",
+  "VERSION" => "0.3",
   "test" => {
     "TESTS" => "t/*.t"
   }

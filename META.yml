@@ -17,7 +17,7 @@ meta-spec:
 name: Plack-App-DAIA
 requires:
   CGI: 0
-  DAIA: 0.35
+  DAIA: 0.4
   Encode: 0
   JSON: 0
   LWP::Simple: 0
@@ -32,4 +32,4 @@ requires:
 resources:
   bugtracker: https://github.com/nichtich/Plack-App-DAIA/issues
   repository: https://github.com/nichtich/Plack-App-DAIA
-version: 0.2
+version: 0.3
