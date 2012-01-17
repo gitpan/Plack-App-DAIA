@@ -12,9 +12,7 @@ my %WriteMakefileArgs = (
   "ABSTRACT" => "DAIA Server as Plack application",
   "AUTHOR" => "Jakob Voss",
   "BUILD_REQUIRES" => {
-    "HTTP::Request::Common" => 0,
-    "Plack::Test" => 0,
-    "Test::More" => 0
+    "Test::Builder::Tester" => 0
   },
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"
@@ -27,18 +25,25 @@ my %WriteMakefileArgs = (
     "CGI" => 0,
     "DAIA" => "0.4",
     "Encode" => 0,
+    "Exporter" => 0,
+    "HTTP::Request::Common" => 0,
     "JSON" => 0,
     "LWP::Simple" => 0,
     "Plack::Component" => 0,
     "Plack::Request" => 0,
+    "Plack::Test" => 0,
     "Plack::Util::Accessor" => 0,
     "Scalar::Util" => 0,
+    "Test::Builder::Module" => 0,
+    "Test::More" => 0,
+    "URI::Escape" => 0,
     "XML::LibXML" => 0,
+    "base" => 0,
     "parent" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.4",
+  "VERSION" => "0.41",
   "test" => {
     "TESTS" => "t/*.t"
   }

@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA::Validator;
 {
-  $Plack::App::DAIA::Validator::VERSION = '0.4';
+  $Plack::App::DAIA::Validator::VERSION = '0.41';
 }
 #ABSTRACT: DAIA validator and converter
 
@@ -16,12 +16,13 @@ our ($FORMATS);
 BEGIN {
     my %f = DAIA->formats;
     $FORMATS = { map { $_ => $_ } keys %f };
+    $FORMATS->{html}     = 'DAIA/HTML';
     $FORMATS->{json}     = 'DAIA/JSON';
     $FORMATS->{xml}      = 'DAIA/XML';
-    $FORMATS->{rdfjson}  = 'DAIA/RDF/JSON';
-    $FORMATS->{turtle}   = 'DAIA/RDF/Turtle'   if $FORMATS->{turtle};
-    $FORMATS->{ntriples} = 'DAIA/RDF/NTriples' if $FORMATS->{ntriples};
-    $FORMATS->{rdfxml}   = 'DAIA/RDF/XML'      if $FORMATS->{rdfxml};
+    $FORMATS->{rdfjson}  = 'DAIA/RDF (JSON)';
+    $FORMATS->{turtle}   = 'DAIA/RDF (Turtle)'   if $FORMATS->{turtle};
+    $FORMATS->{ntriples} = 'DAIA/RDF (NTriples)' if $FORMATS->{ntriples};
+    $FORMATS->{rdfxml}   = 'DAIA/RDF (RDF/XML)'  if $FORMATS->{rdfxml};
     foreach (qw(dot svg)) {
         $FORMATS->{$_} = "DAIA/RDF graph ($_)" if $FORMATS->{$_}; 
     }
@@ -85,7 +86,6 @@ sub call {
 #        $msg .= div({class=>'msg'},"Use ". 
 #                    a({href=>url()."?url=$eurl"},'this URL') .
 #                    " to to directly pass the URL to this script.");
-
     }
 
     my $html = <<HTML;
@@ -165,16 +165,22 @@ HTML
          $html .= p("validation is rather lax so the input may be invalid - but it was parseable");
       }
       $html .= "<div id='result'>";
-      my ($pjson, $pxml) = ("","");
+      my ($pjson, $pxml, $pttl) = ("","","");
       if (!$data && $url) {
-        $pjson = $pxml = "?callback=$callback&url=$eurl";
+        $pjson = $pxml = $pttl = "?callback=$callback&url=$eurl";
         $pjson = " (<a href='$pjson&format=json'>get via proxy</a>)";
         $pxml  = " (<a href='$pxml&format=xml'>get via proxy</a>)";
+        #$pttl  = " (<a href='$pttl&format=turtle'>get via proxy</a>)";
       }
       $html .= "<h2 id='json'>Result in DAIA/JSON$pjson <a href='#top'>&#x2191;</a> <a href='#xml'>&#x2193;</a></h2>";
       $html .= pre(escapeHTML( encode('utf8',$daia->json( $callback ) )));
       $html .= "<h2 id='xml'>Result in DAIA/XML$pxml <a href='#json'>&#x2191;</a></h2>";
       $html .= pre(escapeHTML( encode('utf8',$daia->xml( xmlns => 1 ) )));
+      if ($FORMATS->{turtle}) {
+        $html .= "<h2 id='ttl'>Result in DAIA/RDF (Turtle) <a href='#json'>&#x2191;</a></h2>";
+        my $ttl = $daia->serialize('turtle');
+        $html .= pre(escapeHTML( encode('utf8', $ttl )));
+      }
       $html .= "</div>";
     }
 
@@ -202,7 +208,7 @@ Plack::App::DAIA::Validator - DAIA validator and converter
 
 =head1 VERSION
 
-version 0.4
+version 0.41
 
 =head1 SYNOPSIS
 
