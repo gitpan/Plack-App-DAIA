@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA;
 {
-  $Plack::App::DAIA::VERSION = '0.41';
+  $Plack::App::DAIA::VERSION = '0.42';
 }
 #ABSTRACT: DAIA Server as Plack application
 
@@ -87,7 +87,7 @@ Plack::App::DAIA - DAIA Server as Plack application
 
 =head1 VERSION
 
-version 0.41
+version 0.42
 
 =head1 SYNOPSIS
 

@@ -23,9 +23,9 @@ my %WriteMakefileArgs = (
   "NAME" => "Plack::App::DAIA",
   "PREREQ_PM" => {
     "CGI" => 0,
+    "Carp" => 0,
     "DAIA" => "0.4",
     "Encode" => 0,
-    "Exporter" => 0,
     "HTTP::Request::Common" => 0,
     "JSON" => 0,
     "LWP::Simple" => 0,
@@ -35,6 +35,7 @@ my %WriteMakefileArgs = (
     "Plack::Util::Accessor" => 0,
     "Scalar::Util" => 0,
     "Test::Builder::Module" => 0,
+    "Test::JSON::Entails" => 0,
     "Test::More" => 0,
     "URI::Escape" => 0,
     "XML::LibXML" => 0,
@@ -43,7 +44,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.41",
+  "VERSION" => "0.42",
   "test" => {
     "TESTS" => "t/*.t"
   }
