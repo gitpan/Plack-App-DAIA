@@ -12,20 +12,25 @@ my %WriteMakefileArgs = (
   "ABSTRACT" => "DAIA Server as Plack application",
   "AUTHOR" => "Jakob Voss",
   "BUILD_REQUIRES" => {
+    "English" => 0,
     "Test::Builder::Tester" => 0
   },
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"
   },
   "DISTNAME" => "Plack-App-DAIA",
-  "EXE_FILES" => [],
+  "EXE_FILES" => [
+    "bin/provedaia",
+    "bin/provedaia"
+  ],
   "LICENSE" => "perl",
   "NAME" => "Plack::App::DAIA",
   "PREREQ_PM" => {
     "CGI" => 0,
     "Carp" => 0,
-    "DAIA" => "0.4",
+    "DAIA" => "0.41",
     "Encode" => 0,
+    "Getopt::Long" => 0,
     "HTTP::Request::Common" => 0,
     "JSON" => 0,
     "LWP::Simple" => 0,
@@ -33,6 +38,7 @@ my %WriteMakefileArgs = (
     "Plack::Request" => 0,
     "Plack::Test" => 0,
     "Plack::Util::Accessor" => 0,
+    "Pod::Usage" => 0,
     "Scalar::Util" => 0,
     "Test::Builder::Module" => 0,
     "Test::JSON::Entails" => 0,
@@ -44,7 +50,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.42",
+  "VERSION" => "0.43",
   "test" => {
     "TESTS" => "t/*.t"
   }

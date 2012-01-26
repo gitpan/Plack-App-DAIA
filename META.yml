@@ -3,11 +3,12 @@ abstract: 'DAIA Server as Plack application'
 author:
   - 'Jakob Voss'
 build_requires:
+  English: 0
   Test::Builder::Tester: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300005, CPAN::Meta::Converter version 2.112150'
+generated_by: 'Dist::Zilla version 4.300006, CPAN::Meta::Converter version 2.113640'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -16,8 +17,9 @@ name: Plack-App-DAIA
 requires:
   CGI: 0
   Carp: 0
-  DAIA: 0.4
+  DAIA: 0.41
   Encode: 0
+  Getopt::Long: 0
   HTTP::Request::Common: 0
   JSON: 0
   LWP::Simple: 0
@@ -25,6 +27,7 @@ requires:
   Plack::Request: 0
   Plack::Test: 0
   Plack::Util::Accessor: 0
+  Pod::Usage: 0
   Scalar::Util: 0
   Test::Builder::Module: 0
   Test::JSON::Entails: 0
@@ -38,4 +41,4 @@ requires:
 resources:
   bugtracker: https://github.com/nichtich/Plack-App-DAIA/issues
   repository: https://github.com/nichtich/Plack-App-DAIA
-version: 0.42
+version: 0.43

@@ -5,10 +5,15 @@ META.yml
 Makefile.PL
 README
 app.psgi
+bin/provedaia
+examples/daia-ubbielefeld.pl
 lib/Plack/App/DAIA.pm
 lib/Plack/App/DAIA/Test.pm
 lib/Plack/App/DAIA/Validator.pm
+t/author-critic.t
 t/basic.t
 t/compile.t
+t/docid.json
 t/retrieve.t
+t/suite.t
 t/test.t

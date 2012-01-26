@@ -1,0 +1,95 @@
+#!/usr/bin/perl
+#ABSTRACT: run DAIA test suites
+#PODNAME: provedaia
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+use Pod::Usage;
+use Plack::App::DAIA::Test;
+use Test::More;
+
+my ($help,$version,$server,$end,$combined);
+
+GetOptions(
+    'help|?'   => \$help,
+    'server:s' => \$server,
+    'version'  => \$version,
+    'end'      => \$end,
+    'combined' => \$combined,
+);
+pod2usage(-verbose => 1) if defined $help;
+
+if ($version) {
+    printf "This is provedaia with Plack::App::DAIA %s and DAIA %s\n", 
+           $PLack::App::DAIA::VERSION, $DAIA::VERSION;
+    exit;
+}
+ 
+$end = 1 if $combined;
+@ARGV = \*STDIN unless @ARGV;
+
+foreach (@ARGV) {
+    diag( $_ ) unless ref $_;
+    $server = $_ if $combined;
+    eval { daia_test_suite( $_, server => $server, end => $end ); };
+    fail( $@ ) if $@;
+}
+
+done_testing;
+
+
+__END__
+=pod
+
+=head1 NAME
+
+provedaia - run DAIA test suites
+
+=head1 VERSION
+
+version 0.43
+
+=head1 SYNOPSIS
+
+provedaia [<OPTIONS>] [<FILES>]
+
+ Options:
+   -?|-h|--help          show this help
+   --version             show version
+   --server URL-or-file  set base URL of DAIA server or load PSGI script
+   --end                 skip everything until __END__ in input
+   --combined            use files as both, server and test suite
+
+=head1 DESCRIPTION
+
+This script can be used to test DAIA servers. It is based on the package
+L<Plack::App::DAIA::Test> but you do not need to write full test scripts.
+Instead you just provide server, query identifier(s), and an optional response.
+The output of this script conforms to the Test Anything Protocol (TAP).
+
+DAIA responses can be checked with L<Test::JSON::Entails>. For instance you
+can check that the response contains a document with the ID you queried for:
+
+    { "document" : [
+      { "id" : "$id" }
+    ] }
+
+Have a look at the bottom of the L<daia-ubbielefeld.pl> example script for
+another example. As L<Plack::App::DAIA::Test> is work in progress, so is this
+script.
+
+=head1 AUTHOR
+
+Jakob Voss
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Jakob Voss.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+

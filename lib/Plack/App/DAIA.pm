@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA;
 {
-  $Plack::App::DAIA::VERSION = '0.42';
+  $Plack::App::DAIA::VERSION = '0.43';
 }
 #ABSTRACT: DAIA Server as Plack application
 
@@ -13,22 +13,34 @@ use JSON;
 use DAIA;
 use Scalar::Util qw(blessed);
 
-use Plack::Util::Accessor qw(xsd xslt warnings code);
+use Plack::Util::Accessor qw(xsd xslt warnings code idformat);
 use Plack::Request;
 
-our %FORMATS = DAIA->formats;
+our %FORMATS  = DAIA->formats;
+our $IDFORMAT = qr{^.*$};
 
 sub prepare_app {
     my $self = shift;
     $self->warnings(1) unless defined $self->warnings;
+    $self->idformat($IDFORMAT) unless defined $self->idformat
 }
 
 sub call {
     my ($self, $env) = @_;
     my $req = Plack::Request->new($env);
 
+    my $invalid_id;
     my $id = $req->param('id');
+    if ( defined $id and $id ne '' and ref $self->idformat ) {
+        if ( ref $self->idformat eq 'Regexp' ) {
+            if ( $id !~ $self->idformat ) {
+                $invalid_id = $id;
+                $id = "";
+            }
+        }
+    }
     $id = "" unless defined $id;
+
     my $format = lc($req->param('format')) || "";
 
     if (!$format) {
@@ -43,8 +55,12 @@ sub call {
         $status = 500;
     }
 
-    if ( $id eq "" and $self->warnings ) {
-        $daia->addMessage( 'en' => 'please provide a document identifier', 300 );
+    if ( $self->warnings ) {
+        if ( defined $invalid_id ) {
+            $daia->addMessage( 'en' => 'unknown identifier format', errno => 400 );
+        } elsif ( $id eq ""  ) {
+            $daia->addMessage( 'en' => 'please provide a document identifier', errno => 400 );
+        }
     }
 
     $self->as_psgi( $status, $daia, $format, $req->param('callback') );
@@ -57,10 +73,12 @@ sub retrieve {
 
 sub as_psgi {
     my ($self, $status, $daia, $format, $callback) = @_;
+    my ($content, $type);
 
-    my $type    = $FORMATS{$format};
-    my $content = $daia->serialize($format) if $type and $format ne 'xml';
-    if (!$type || !$content) {
+    $type = $FORMATS{$format} unless $format eq 'xml';
+    $content = $daia->serialize($format) if $type;
+
+    if (!$content) {
         $type = "application/xml; charset=utf-8";
         if ( $self->warnings ) {
             if ( not $format ) {
@@ -87,7 +105,7 @@ Plack::App::DAIA - DAIA Server as Plack application
 
 =head1 VERSION
 
-version 0.42
+version 0.43
 
 =head1 SYNOPSIS
 
@@ -98,9 +116,9 @@ It is recommended to derive from this class:
 
     sub retrieve {
         my ($self, $id) = @_;
-        my $daia = DAIA::Response->new();
 
-        # construct DAIA object
+        # construct DAIA object (you must extend this in your application)
+        my $daia = DAIA::Response->new;
 
         return $daia;
     };
@@ -120,6 +138,9 @@ To quickly hack a DAIA server you can also put all into C<app.psgi>:
         # ...construct and return DAIA object
     } );
     $app;
+
+This module contains a dummy application C<app.psgi> and a more detailed
+example L<daia-ubbielefeld.pl>.
 
 =head1 DESCRIPTION
 
@@ -156,7 +177,7 @@ L<RDF::Trine::Exporter::GraphViz> is installed to visualize RDF graphs
 
 =head2 new ( [%options] )
 
-Creates a new DAIA server. Known options are
+Creates a new DAIA server. Supported options are
 
 =over 4
 
@@ -174,8 +195,15 @@ Enable warnings in the DAIA response (enabled by default).
 
 =item code
 
-Code reference to the retrieve method if you prefer not to create a
+Code reference to the 'retrieve' method if you prefer not to create a
 module derived from this module.
+
+=item idformat
+
+Optional regular expression to validate identifiers. Invalid identifiers
+are set to the empty string before they are passed to the 'retrieve'
+method. In addition an error message "unknown identifier format" is
+added to the response, if warnings are enabled.
 
 =back
 
@@ -197,7 +225,7 @@ Core method of the L<Plack::Component>. You should not need to override this.
 
 =head1 SEE ALSO
 
-L<Plack::App::DAIA::Validator>
+L<Plack::App::DAIA::Validator>, L<Plack::DAIA::Test>.
 
 =head1 AUTHOR
 
