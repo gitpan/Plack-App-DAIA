@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA;
 {
-  $Plack::App::DAIA::VERSION = '0.43';
+  $Plack::App::DAIA::VERSION = '0.44';
 }
 #ABSTRACT: DAIA Server as Plack application
 
@@ -105,7 +105,7 @@ Plack::App::DAIA - DAIA Server as Plack application
 
 =head1 VERSION
 
-version 0.43
+version 0.44
 
 =head1 SYNOPSIS
 
@@ -140,7 +140,7 @@ To quickly hack a DAIA server you can also put all into C<app.psgi>:
     $app;
 
 This module contains a dummy application C<app.psgi> and a more detailed
-example L<daia-ubbielefeld.pl>.
+example C<examples/daia-ubbielefeld.pl>.
 
 =head1 DESCRIPTION
 
@@ -233,7 +233,7 @@ Jakob Voss
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2011 by Jakob Voss.
+This software is copyright (c) 2012 by Jakob Voss.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
