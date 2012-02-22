@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA::Test::Suite;
 {
-  $Plack::App::DAIA::Test::Suite::VERSION = '0.44';
+  $Plack::App::DAIA::Test::Suite::VERSION = '0.45';
 }
 #ABSTRACT: Test DAIA Servers via a test scripting language
 
@@ -92,11 +92,13 @@ sub provedaia {
             next;
         } elsif( $_ =~ qr{^([a-z]+)\s*=\s*(.*)}i ) {
             $comment = '';
+            my ($key, $value) = ($1,$2);
             if ($1 =~ /^id[s]?/) {
-                @ids = $2 eq '' ? () : ($2);
+                @ids = $value eq '' ? () : ($value);
             } else {
-                $vars{$1} = $2;
+                $vars{$key} = $value;
             }
+            diag( "$key = $value" ) if $args{verbose};
         } elsif( $_ =~ qr/^\s*{/ ) {
             $json = $_; 
         } else { # identifier
@@ -119,7 +121,7 @@ Plack::App::DAIA::Test::Suite - Test DAIA Servers via a test scripting language
 
 =head1 VERSION
 
-version 0.44
+version 0.45
 
 =head1 SYNOPSIS
 
@@ -149,7 +151,7 @@ equivalent to an inital C<server=...> statement in you test suite and the
 latter is equivalent to an initial list of identifiers in you test suite.
 
 If the option C<end> is set, all lines before C<__END__> are ignored in the
-test suite script.
+test suite script. The option C<verbose> adds more diagnostic messages.
 
 =head1 TEST SUITE FORMAT
 

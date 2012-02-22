@@ -2,9 +2,11 @@ use strict;
 use warnings;
 package Plack::App::DAIA;
 {
-  $Plack::App::DAIA::VERSION = '0.44';
+  $Plack::App::DAIA::VERSION = '0.45';
 }
 #ABSTRACT: DAIA Server as Plack application
+
+use feature ':5.10';
 
 use parent 'Plack::Component';
 use LWP::Simple qw(get);
@@ -17,29 +19,36 @@ use Plack::Util::Accessor qw(xsd xslt warnings code idformat);
 use Plack::Request;
 
 our %FORMATS  = DAIA->formats;
-our $IDFORMAT = qr{^.*$};
 
 sub prepare_app {
     my $self = shift;
     $self->warnings(1) unless defined $self->warnings;
-    $self->idformat($IDFORMAT) unless defined $self->idformat
+    $self->idformat(qr{^.*$}) unless defined $self->idformat;
+    $self->init;
+}
+
+sub init {
+    # initialization hook
 }
 
 sub call {
     my ($self, $env) = @_;
     my $req = Plack::Request->new($env);
 
-    my $invalid_id;
-    my $id = $req->param('id');
-    if ( defined $id and $id ne '' and ref $self->idformat ) {
+    my $id = $req->param('id') // '';
+    my $invalid_id = '';
+    my %parts;
+
+    if ( $id ne '' and ref $self->idformat ) {
         if ( ref $self->idformat eq 'Regexp' ) {
-            if ( $id !~ $self->idformat ) {
+            if ( $id =~ $self->idformat ) {
+                %parts = %+; # named capturing groups
+            } else {
                 $invalid_id = $id;
                 $id = "";
             }
         }
     }
-    $id = "" unless defined $id;
 
     my $format = lc($req->param('format')) || "";
 
@@ -47,8 +56,8 @@ sub call {
         # TODO: guess format via content negotiation
     }
     
-    my $daia = $self->retrieve( $id );
     my $status = 200;
+    my $daia = $self->retrieve( $id, %parts );
 
     if (!$daia) {
         $daia = DAIA::Response->new;
@@ -56,7 +65,7 @@ sub call {
     }
 
     if ( $self->warnings ) {
-        if ( defined $invalid_id ) {
+        if ( $invalid_id ne '' ) {
             $daia->addMessage( 'en' => 'unknown identifier format', errno => 400 );
         } elsif ( $id eq ""  ) {
             $daia->addMessage( 'en' => 'please provide a document identifier', errno => 400 );
@@ -67,8 +76,8 @@ sub call {
 }
 
 sub retrieve {
-    my ($self, $id) = @_;
-    return $self->code ? $self->code->($id) : undef;
+    my $self = shift;
+    return $self->code ? $self->code->(@_) : undef;
 }
 
 sub as_psgi {
@@ -105,7 +114,7 @@ Plack::App::DAIA - DAIA Server as Plack application
 
 =head1 VERSION
 
-version 0.44
+version 0.45
 
 =head1 SYNOPSIS
 
@@ -115,7 +124,7 @@ It is recommended to derive from this class:
     use parent 'Plack::App::DAIA';
 
     sub retrieve {
-        my ($self, $id) = @_;
+        my ($self, $id, %parts) = @_;
 
         # construct DAIA object (you must extend this in your application)
         my $daia = DAIA::Response->new;
@@ -205,14 +214,31 @@ are set to the empty string before they are passed to the 'retrieve'
 method. In addition an error message "unknown identifier format" is
 added to the response, if warnings are enabled.
 
+It is recommended to use regular expressions with named capturing groups
+as introduced in Perl 5.10. The named parts are also passed to the
+retrieve method. For instance:
+
+  idformat => qr{^ (?<prefix>[a-z]+) : (?<local>.+) $}x
+
+will give you C<$parts{prefix}> and C<$parts{local}> in the retrieve method.
+
 =back
 
-=head2 retrieve ( $id )
+=head2 retrieve ( $id [, %parts ] )
 
 Must return a status and a L<DAIA::Response> object. Override this method
 if you derive an application from Plack::App::DAIA. By default it either
 calls the retrieve code, as passed to the constructor, or returns undef,
 so a HTTP 500 error is returned.
+
+This method is passed the original query identifier and a hash of named
+capturing groups from your identifier format.
+
+=head2 init
+
+This method is called by Plack::Component::prepare_app, once before the first
+request. You can define this method in you subclass as initialization hook,
+for instance to set default option values.
 
 =head2 as_psgi ( $status, $daia [, $format [, $callback ] ] )
 
