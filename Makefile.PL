@@ -6,6 +6,8 @@ use 5.010;
 
 use ExtUtils::MakeMaker 6.30;
 
+use File::ShareDir::Install;
+install_share dist => "share";
 
 
 my %WriteMakefileArgs = (
@@ -16,7 +18,8 @@ my %WriteMakefileArgs = (
     "Test::Builder::Tester" => 0
   },
   "CONFIGURE_REQUIRES" => {
-    "ExtUtils::MakeMaker" => "6.30"
+    "ExtUtils::MakeMaker" => "6.30",
+    "File::ShareDir::Install" => "0.03"
   },
   "DISTNAME" => "Plack-App-DAIA",
   "EXE_FILES" => [
@@ -29,11 +32,13 @@ my %WriteMakefileArgs = (
     "Carp" => 0,
     "DAIA" => "0.41",
     "Encode" => 0,
+    "File::ShareDir" => 0,
     "Getopt::Long" => 0,
     "HTTP::Request::Common" => 0,
     "JSON" => 0,
     "LWP::Simple" => 0,
     "Plack::Component" => 0,
+    "Plack::Middleware::Static" => 0,
     "Plack::Request" => 0,
     "Plack::Test" => 0,
     "Plack::Util::Accessor" => 0,
@@ -50,7 +55,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.45",
+  "VERSION" => "0.45_1",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -75,5 +80,10 @@ delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
 
 WriteMakefile(%WriteMakefileArgs);
 
+{
+package
+MY;
+use File::ShareDir::Install qw(postamble);
+}
 
 

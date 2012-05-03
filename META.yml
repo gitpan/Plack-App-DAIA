@@ -7,8 +7,9 @@ build_requires:
   Test::Builder::Tester: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.30
+  File::ShareDir::Install: 0.03
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300009, CPAN::Meta::Converter version 2.113640'
+generated_by: 'Dist::Zilla version 4.300014, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -19,11 +20,13 @@ requires:
   Carp: 0
   DAIA: 0.41
   Encode: 0
+  File::ShareDir: 0
   Getopt::Long: 0
   HTTP::Request::Common: 0
   JSON: 0
   LWP::Simple: 0
   Plack::Component: 0
+  Plack::Middleware::Static: 0
   Plack::Request: 0
   Plack::Test: 0
   Plack::Util::Accessor: 0
@@ -42,5 +45,6 @@ requires:
   warnings: 0
 resources:
   bugtracker: https://github.com/nichtich/Plack-App-DAIA/issues
-  repository: https://github.com/nichtich/Plack-App-DAIA
-version: 0.45
+  homepage: https://github.com/nichtich/Plack-App-DAIA
+  repository: https://github.com/nichtich/Plack-App-DAIA.git
+version: 0.45_1

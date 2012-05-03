@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA;
 {
-  $Plack::App::DAIA::VERSION = '0.45';
+  $Plack::App::DAIA::VERSION = '0.45_1';
 }
 #ABSTRACT: DAIA Server as Plack application
 
@@ -15,16 +15,32 @@ use JSON;
 use DAIA;
 use Scalar::Util qw(blessed);
 
-use Plack::Util::Accessor qw(xsd xslt warnings code idformat);
+use Plack::Util::Accessor qw(xsd xslt warnings code idformat initialized html);
+use Plack::Middleware::Static;
+use File::ShareDir qw(dist_dir);
+
 use Plack::Request;
 
 our %FORMATS  = DAIA->formats;
 
 sub prepare_app {
     my $self = shift;
+    return if $self->initialized;
+
     $self->warnings(1) unless defined $self->warnings;
     $self->idformat(qr{^.*$}) unless defined $self->idformat;
+
+    if ($self->html) {
+        $self->html( Plack::Middleware::Static->new(
+            path => qr{daia\.(xsl|css)$|xmlverbatim\.xsl$|icon/[a-z0-9_-]+\.png$},
+            root => dist_dir('Plack-App-DAIA')
+        ));
+        $self->xslt( '/daia.xsl' ) unless $self->xslt; # TODO: fix base path
+    }
+
     $self->init;
+
+    $self->initialized(1);
 }
 
 sub init {
@@ -38,6 +54,13 @@ sub call {
     my $id = $req->param('id') // '';
     my $invalid_id = '';
     my %parts;
+
+    if ( $self->html and $id eq '' ) {
+        my $resp = $self->html->_handle_static( $env );
+        if ($resp and $resp->[0] eq 200) {
+            return $resp;
+        }
+    }
 
     if ( $id ne '' and ref $self->idformat ) {
         if ( ref $self->idformat eq 'Regexp' ) {
@@ -97,6 +120,8 @@ sub as_psgi {
             }
         }
         $content = $daia->xml( header => 1, xmlns => 1, ( $self->xslt ? (xslt => $self->xslt) : () )  );
+    } elsif ( $type =~ qr{^application/javascript} and ($callback || '') =~ /^[\w\.\[\]]+$/ ) {
+        $content = "$callback($content)";
     }
 
     return [ $status, [ "Content-Type" => $type ], [ encode('utf8',$content) ] ];
@@ -114,11 +139,20 @@ Plack::App::DAIA - DAIA Server as Plack application
 
 =head1 VERSION
 
-version 0.45
+version 0.45_1
 
 =head1 SYNOPSIS
 
-It is recommended to derive from this class:
+To quickly hack a DAIA server, create a simple C<app.psgi>:
+
+    use Plack::App::DAIA;
+
+    Plack::App::DAIA->new( code => sub {
+        my $id = shift;
+        # ...construct and return DAIA object
+    } );
+
+To create your own DAIA server, you should better derive from this class:
 
     package Your::App;
     use parent 'Plack::App::DAIA';
@@ -139,14 +173,10 @@ Then create an C<app.psgi> that returns an instance of your class:
     use Your::App;
     Your::App->new;
 
-To quickly hack a DAIA server you can also put all into C<app.psgi>:
+You can also mix this application with L<Plack> middleware.
 
-    use Plack::App::DAIA;
-    my $app = Plack::App::DAIA->new( code => sub {
-        my $id = shift;
-        # ...construct and return DAIA object
-    } );
-    $app;
+It is highly recommended to test your services! Testing is made as easy as
+possible with the L<provedaia> command line script.
 
 This module contains a dummy application C<app.psgi> and a more detailed
 example C<examples/daia-ubbielefeld.pl>.
@@ -192,7 +222,14 @@ Creates a new DAIA server. Supported options are
 
 =item xslt
 
-Path of a DAIA XSLT client to attach to DAIA/XML responses.
+Path of a DAIA XSLT client to attach to DAIA/XML responses. Not required if
+option "html" is set.
+
+=item html
+
+Enable HTML client for DAIA/XML via XSLT. The client is returned in form of
+three files (C<daia.xsl>, C<daia.css>, C<xmlverbatim.xsl>) and approriate
+icons, that are all shipped with this module.
 
 =item xsd
 
@@ -222,6 +259,10 @@ retrieve method. For instance:
 
 will give you C<$parts{prefix}> and C<$parts{local}> in the retrieve method.
 
+=item initialized
+
+Stores whether the application had been initialized.
+
 =back
 
 =head2 retrieve ( $id [, %parts ] )
@@ -236,22 +277,19 @@ capturing groups from your identifier format.
 
 =head2 init
 
-This method is called by Plack::Component::prepare_app, once before the first
-request. You can define this method in you subclass as initialization hook,
-for instance to set default option values.
+This method is called by L<Plack::Component>::prepare_app, once before the
+first request. You can define this method in you subclass as initialization
+hook, for instance to set default option values. Initialization during runtime
+can be triggered by setting C<initialized> to false.
 
 =head2 as_psgi ( $status, $daia [, $format [, $callback ] ] )
 
 Serializes a L<DAIA::Response> in some DAIA serialization format (C<xml> by
 default) and returns a a PSGI response with given HTTP status code.
 
-=head2 call
-
-Core method of the L<Plack::Component>. You should not need to override this.
-
 =head1 SEE ALSO
 
-L<Plack::App::DAIA::Validator>, L<Plack::DAIA::Test>.
+L<Plack::App::DAIA::Validator> and L<Plack::DAIA::Test>.
 
 =head1 AUTHOR
 
