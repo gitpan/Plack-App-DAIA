@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA::Validator;
 {
-  $Plack::App::DAIA::Validator::VERSION = '0.45_1';
+  $Plack::App::DAIA::Validator::VERSION = '0.46';
 }
 #ABSTRACT: DAIA validator and converter
 
@@ -10,7 +10,7 @@ use CGI qw(:standard);
 use Encode;
 
 use parent 'Plack::App::DAIA';
-use Plack::Util::Accessor qw(xsd xslt warnings);
+use Plack::Util::Accessor qw(xsd xslt warnings html);
 
 our ($FORMATS);
 BEGIN {
@@ -208,7 +208,7 @@ Plack::App::DAIA::Validator - DAIA validator and converter
 
 =head1 VERSION
 
-version 0.45_1
+version 0.46
 
 =head1 SYNOPSIS
 

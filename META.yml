@@ -47,4 +47,4 @@ resources:
   bugtracker: https://github.com/nichtich/Plack-App-DAIA/issues
   homepage: https://github.com/nichtich/Plack-App-DAIA
   repository: https://github.com/nichtich/Plack-App-DAIA.git
-version: 0.45_1
+version: 0.46
