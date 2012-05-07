@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA::Test;
 {
-  $Plack::App::DAIA::Test::VERSION = '0.46';
+  $Plack::App::DAIA::Test::VERSION = '0.47';
 }
 #ABSTRACT: Test DAIA Servers
 
@@ -116,7 +116,7 @@ Plack::App::DAIA::Test - Test DAIA Servers
 
 =head1 VERSION
 
-version 0.46
+version 0.47
 
 =head1 SYNOPSIS
 

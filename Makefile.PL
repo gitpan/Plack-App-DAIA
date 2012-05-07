@@ -33,6 +33,7 @@ my %WriteMakefileArgs = (
     "DAIA" => "0.41",
     "Encode" => 0,
     "File::ShareDir" => 0,
+    "File::Spec::Functions" => 0,
     "Getopt::Long" => 0,
     "HTTP::Request::Common" => 0,
     "JSON" => 0,
@@ -48,14 +49,13 @@ my %WriteMakefileArgs = (
     "Test::JSON::Entails" => 0,
     "Test::More" => 0,
     "URI::Escape" => 0,
-    "XML::LibXML" => 0,
     "base" => 0,
     "feature" => 0,
     "parent" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.46",
+  "VERSION" => "0.47",
   "test" => {
     "TESTS" => "t/*.t"
   }

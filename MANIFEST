@@ -12,6 +12,7 @@ lib/Plack/App/DAIA/Test.pm
 lib/Plack/App/DAIA/Test/Suite.pm
 lib/Plack/App/DAIA/Validator.pm
 share/daia.css
+share/daia.xsd
 share/daia.xsl
 share/icons/README
 share/icons/bullet_green.png

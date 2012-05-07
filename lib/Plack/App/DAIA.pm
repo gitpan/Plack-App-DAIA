@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA;
 {
-  $Plack::App::DAIA::VERSION = '0.46';
+  $Plack::App::DAIA::VERSION = '0.47';
 }
 #ABSTRACT: DAIA Server as Plack application
 
@@ -15,7 +15,7 @@ use JSON;
 use DAIA;
 use Scalar::Util qw(blessed);
 
-use Plack::Util::Accessor qw(xsd xslt warnings code idformat initialized html);
+use Plack::Util::Accessor qw(xslt warnings code idformat initialized html);
 use Plack::Middleware::Static;
 use File::ShareDir qw(dist_dir);
 
@@ -34,7 +34,7 @@ sub prepare_app {
 
     if ($self->html) {
         $self->html( Plack::Middleware::Static->new(
-            path => qr{daia\.(xsl|css)$|xmlverbatim\.xsl$|icons/[a-z0-9_-]+\.png$},
+            path => qr{daia\.(xsl|css|xsd)$|xmlverbatim\.xsl$|icons/[a-z0-9_-]+\.png$},
             root => dist_dir('Plack-App-DAIA')
         ));
         $self->xslt( 'daia.xsl' ) unless $self->xslt; # TODO: fix base path
@@ -139,7 +139,7 @@ Plack::App::DAIA - DAIA Server as Plack application
 
 =head1 VERSION
 
-version 0.46
+version 0.47
 
 =head1 SYNOPSIS
 
@@ -222,18 +222,16 @@ Creates a new DAIA server. Supported options are
 
 =item xslt
 
-Path of a DAIA XSLT client to attach to DAIA/XML responses. Not required if
-option "html" is set.
+Path of a DAIA XSLT client to attach to DAIA/XML responses. Not set by default
+and set to C<daia.xsl> if option C<html> is set. You still may need to adjust
+the path if your server rewrites the request path.
 
 =item html
 
 Enable a HTML client for DAIA/XML via XSLT. The client is returned in form of
-three files (C<daia.xsl>, C<daia.css>, C<xmlverbatim.xsl>) and DAIA icons,
-all shipped together with this module.
-
-=item xsd
-
-Path of a DAIA XML Schema to validate DAIA/XML response.
+three files (C<daia.xsl>, C<daia.css>, C<xmlverbatim.xsl>) and DAIA icons, all
+shipped together with this module. Enabling HTML client also enables serving
+the DAIA XML Schema as C<daia.xsd>.
 
 =item warnings
 
@@ -241,19 +239,19 @@ Enable warnings in the DAIA response (enabled by default).
 
 =item code
 
-Code reference to the 'retrieve' method if you prefer not to create a
+Code reference to the C<retrieve> method if you prefer not to create a
 module derived from this module.
 
 =item idformat
 
 Optional regular expression to validate identifiers. Invalid identifiers
-are set to the empty string before they are passed to the 'retrieve'
+are set to the empty string before they are passed to the C<retrieve>
 method. In addition an error message "unknown identifier format" is
 added to the response, if warnings are enabled.
 
 It is recommended to use regular expressions with named capturing groups
 as introduced in Perl 5.10. The named parts are also passed to the
-retrieve method. For instance:
+C<retrieve method>. For instance:
 
   idformat => qr{^ (?<prefix>[a-z]+) : (?<local>.+) $}x
 
@@ -277,10 +275,10 @@ capturing groups from your identifier format.
 
 =head2 init
 
-This method is called by L<Plack::Component>::prepare_app, once before the
-first request. You can define this method in you subclass as initialization
-hook, for instance to set default option values. Initialization during runtime
-can be triggered by setting C<initialized> to false.
+This method is called by Plack::Component::prepare_app, once before the first
+request. You can define this method in you subclass as initialization hook, for
+instance to set default option values. Initialization during runtime can be
+triggered by setting C<initialized> to false.
 
 =head2 as_psgi ( $status, $daia [, $format [, $callback ] ] )
 
@@ -289,7 +287,7 @@ default) and returns a a PSGI response with given HTTP status code.
 
 =head1 SEE ALSO
 
-L<Plack::App::DAIA::Validator> and L<Plack::DAIA::Test>.
+L<Plack::App::DAIA::Validator>, L<Plack::DAIA::Test>, and C<Plack::Component>
 
 =head1 AUTHOR
 
