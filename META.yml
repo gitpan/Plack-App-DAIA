@@ -3,13 +3,13 @@ abstract: 'DAIA Server as Plack application'
 author:
   - 'Jakob Voss'
 build_requires:
-  English: 0
   Test::Builder::Tester: 0
+  feature: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.30
   File::ShareDir::Install: 0.03
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300014, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Dist::Zilla version 4.300023, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -38,13 +38,12 @@ requires:
   Test::More: 0
   URI::Escape: 0
   base: 0
-  feature: 0
   parent: 0
-  perl: 5.010
+  perl: v5.10.1
   strict: 0
   warnings: 0
 resources:
   bugtracker: https://github.com/nichtich/Plack-App-DAIA/issues
   homepage: https://github.com/nichtich/Plack-App-DAIA
   repository: https://github.com/nichtich/Plack-App-DAIA.git
-version: 0.47
+version: 0.471

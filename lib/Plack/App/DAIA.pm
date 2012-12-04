@@ -2,11 +2,11 @@ use strict;
 use warnings;
 package Plack::App::DAIA;
 {
-  $Plack::App::DAIA::VERSION = '0.47';
+  $Plack::App::DAIA::VERSION = '0.471';
 }
 #ABSTRACT: DAIA Server as Plack application
 
-use feature ':5.10';
+use v5.10.1;
 
 use parent 'Plack::Component';
 use LWP::Simple qw(get);
@@ -73,7 +73,7 @@ sub call {
         }
     }
 
-    my $format = lc($req->param('format')) || "";
+    my $format = lc($req->param('format') || "");
 
     if (!$format) {
         # TODO: guess format via content negotiation
@@ -139,7 +139,7 @@ Plack::App::DAIA - DAIA Server as Plack application
 
 =head1 VERSION
 
-version 0.47
+version 0.471
 
 =head1 SYNOPSIS
 
@@ -287,7 +287,9 @@ default) and returns a a PSGI response with given HTTP status code.
 
 =head1 SEE ALSO
 
-L<Plack::App::DAIA::Validator>, L<Plack::DAIA::Test>, and C<Plack::Component>
+Plack::App::DAIA is derived from L<Plack::Component>. Use L<Plack::DAIA::Test>
+and L<provedaia> (using L<Plack::App::DAIA::Test::Suite>) for writing tests.
+See L<Plack::App::DAIA::Validator> for a DAIA validator and converter.
 
 =head1 AUTHOR
 
