@@ -14,8 +14,7 @@ my %WriteMakefileArgs = (
   "ABSTRACT" => "DAIA Server as Plack application",
   "AUTHOR" => "Jakob Voss",
   "BUILD_REQUIRES" => {
-    "Test::Builder::Tester" => 0,
-    "feature" => 0
+    "Test::Builder::Tester" => 0
   },
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30",
@@ -54,7 +53,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.471",
+  "VERSION" => "0.48",
   "test" => {
     "TESTS" => "t/*.t"
   }

@@ -4,7 +4,6 @@ author:
   - 'Jakob Voss'
 build_requires:
   Test::Builder::Tester: 0
-  feature: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.30
   File::ShareDir::Install: 0.03
@@ -46,4 +45,4 @@ resources:
   bugtracker: https://github.com/nichtich/Plack-App-DAIA/issues
   homepage: https://github.com/nichtich/Plack-App-DAIA
   repository: https://github.com/nichtich/Plack-App-DAIA.git
-version: 0.471
+version: 0.48

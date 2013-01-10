@@ -55,10 +55,12 @@ share/icons/information_32.png
 share/icons/questionmark_16.png
 share/icons/questionmark_32.png
 share/xmlverbatim.xsl
+t/SampleDAIAApp.pm
 t/author-critic.t
 t/basic.t
 t/compile.t
 t/docid.json
 t/retrieve.t
+t/subclass.t
 t/suite.t
 t/test.t
