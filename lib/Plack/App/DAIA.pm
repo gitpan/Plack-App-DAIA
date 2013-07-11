@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA;
 {
-  $Plack::App::DAIA::VERSION = '0.48';
+  $Plack::App::DAIA::VERSION = '0.50';
 }
 #ABSTRACT: DAIA Server as Plack application
 
@@ -14,8 +14,8 @@ use Encode;
 use JSON;
 use DAIA;
 use Scalar::Util qw(blessed);
-
-use Plack::Util::Accessor qw(xslt warnings errors code idformat initialized html);
+use Try::Tiny;
+use Plack::Util::Accessor qw(xslt warnings errors code idformat initialized html safe);
 use Plack::Middleware::Static;
 use File::ShareDir qw(dist_dir);
 
@@ -27,11 +27,11 @@ sub prepare_app {
     my $self = shift;
     return if $self->initialized;
 
+    $self->init;
     $self->errors(0) unless defined $self->errors;
     $self->warnings(1) if $self->errors or not defined $self->warnings;
-    $self->idformat( $self->IDFORMAT) unless defined $self->idformat;
-
-    $self->init;
+    $self->idformat( qr{^.*$} ) unless defined $self->idformat;
+    $self->safe(1) unless defined $self->safe;
 
     if ($self->html) {
         $self->html( Plack::Middleware::Static->new(
@@ -47,8 +47,6 @@ sub prepare_app {
 sub init {
     # initialization hook
 }
-
-sub IDFORMAT { qr{^.*$} };
 
 sub call {
     my ($self, $env) = @_;
@@ -66,7 +64,7 @@ sub call {
     }
 
     # validate identifier
-    my ($invalid_id, $message, %parts) = ('',undef);
+    my ($invalid_id, $error, %parts) = ('',undef);
     if ( $id ne '' and ref $self->idformat ) {
         if ( ref $self->idformat eq 'Regexp' ) {
             if ( $id =~ $self->idformat ) {
@@ -80,26 +78,37 @@ sub call {
 
     if ( $self->warnings ) {
         if ( $invalid_id ne '' ) {
-            $message = 'unknown identifier format';
+            $error = 'unknown identifier format';
         } elsif ( $id eq ''  ) {
-            $message = 'please provide a document identifier';
+            $error = 'please provide a document identifier';
         }
     }
 
     # retrieve and construct response
     my ($status, $daia) = (200, undef);
-    if ( $message and $self->errors ) {
+    if ( $error and $self->errors ) {
         $daia = DAIA::Response->new;
     } else {
-        $daia = $self->retrieve( $id, %parts );
-        if (!$daia) {
+        if ($self->safe) {
+            try {
+                $daia = $self->retrieve( $id, %parts );
+            } catch {
+                chomp($error = "request method died: $_");
+                $status = 500;
+            }
+        } else {
+            $daia = $self->retrieve( $id, %parts );
+        }
+        if (!$daia or !blessed $daia or !$daia->isa('DAIA::Response')) {
             $daia = DAIA::Response->new;
+            $error = 'request method did not return a DAIA response'
+                unless $error;
             $status = 500;
         }
     }
 
-    if ( $message and $self->warnings ) {
-        $daia->addMessage( 'en' => $message, errno => 400 );
+    if ( $error and $self->warnings ) {
+        $daia->addMessage( 'en' => $error, errno => 400 );
     }
 
     $self->as_psgi( $status, $daia, $format, $req->param('callback') );
@@ -146,7 +155,7 @@ Plack::App::DAIA - DAIA Server as Plack application
 
 =head1 VERSION
 
-version 0.48
+version 0.50
 
 =head1 SYNOPSIS
 
@@ -155,7 +164,10 @@ Either derive from Plack::App::DAIA
     package Your::App;
     use parent 'Plack::App::DAIA';
 
-    sub IDFORMAT { qr{^[a-z]+:.*$} }
+    sub init {
+        my $self = shift;
+        $self->idformat( qr{^[a-z]+:.*$} ) unless $self->idformat;
+    }
 
     sub retrieve {
         my ($self, $id, %idparts) = @_;
@@ -173,14 +185,14 @@ or pass a code reference as option C<code>:
 
     use Plack::App::DAIA;
 
-    Plack::App::DAIA->new( 
+    Plack::App::DAIA->new(
         code => sub {
             my ($id, %idparts) = @_;
 
             my $daia = DAIA::Response->new;
 
             # construct full response ...
-            
+
             return $daia;
         },
         idformat => qr{^[a-z]+:.*$}
@@ -189,7 +201,7 @@ or pass a code reference as option C<code>:
 =head1 DESCRIPTION
 
 This module implements a B<Document Availability Information API> (L<DAIA>)
-server as PSGI application. The application receives two URL parameters: 
+server as PSGI application. A DAIA server receives two URL parameters:
 
 =over 4
 
@@ -203,7 +215,7 @@ which must return a L<DAIA::Response> object.
 
 specifies a DAIA serialization format, that the resulting L<DAIA::Response> is
 returned in. By default the formats C<xml> (DAIA/XML, the default), C<json>
-(DAIA/JSON>, and C<rdfjson> (DAIA/RDF in RDF/JSON) are supported. Additional
+(DAIA/JSON), and C<rdfjson> (DAIA/RDF in RDF/JSON) are supported. Additional
 RDF serializations (C<rdfxml>, C<turtle>, and C<ntriples>) are supported if
 L<RDF::Trine> is installed. If L<RDF::NS> is installed, the RDF/Turtle output
 uses well-known namespace prefixes. Visual RDF graphs are supported with format
@@ -212,8 +224,8 @@ is in C<$ENV{PATH}>.
 
 =back
 
-This module automatically adds some warnings and error messages and provides a simple
-HTML interface based on client side XSLT.
+This module automatically adds appropriate warnings and error messages. A
+simple HTML interface based on client side XSLT is added with option C<html>.
 
 =head1 METHODS
 
@@ -266,6 +278,11 @@ C<retrieve method>. For instance:
 
 will give you C<$parts{prefix}> and C<$parts{local}> in the retrieve method.
 
+=item safe
+
+Catch errors on the request format if enabled (by default). You may want to
+disable this to get a stack trace if the request method throws an error.
+
 =item initialized
 
 Stores whether the application had been initialized.
@@ -285,18 +302,15 @@ capturing groups from your identifier format.
 =head2 init
 
 This method is called by Plack::Component::prepare_app, once before the first
-request. You can define this method in you subclass as initialization hook, for
-instance to set default option values. Initialization during runtime can be
-triggered by setting C<initialized> to false.
+request and before undefined options are set to their default values. You can
+define this method in you subclass as initialization hook, for instance to set
+default option values. Initialization during runtime can be triggered by
+setting C<initialized> to false.
 
 =head2 as_psgi ( $status, $daia [, $format [, $callback ] ] )
 
 Serializes a L<DAIA::Response> in some DAIA serialization format (C<xml> by
 default) and returns a a PSGI response with given HTTP status code.
-
-=head2 IDFORMAT
-
-Returns the default idformat for this module.
 
 =head1 EXAMPLES
 
@@ -320,7 +334,7 @@ Jakob Voss
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by Jakob Voss.
+This software is copyright (c) 2013 by Jakob Voss.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

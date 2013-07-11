@@ -60,6 +60,7 @@ t/author-critic.t
 t/basic.t
 t/compile.t
 t/docid.json
+t/errors.t
 t/retrieve.t
 t/subclass.t
 t/suite.t

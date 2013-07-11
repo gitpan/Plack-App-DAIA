@@ -47,13 +47,14 @@ my %WriteMakefileArgs = (
     "Test::Builder::Module" => 0,
     "Test::JSON::Entails" => 0,
     "Test::More" => 0,
+    "Try::Tiny" => 0,
     "URI::Escape" => 0,
     "base" => 0,
     "parent" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.48",
+  "VERSION" => "0.50",
   "test" => {
     "TESTS" => "t/*.t"
   }

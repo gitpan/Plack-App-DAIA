@@ -3,7 +3,7 @@ use warnings;
 use v5.10.1;
 package Plack::App::DAIA::Test;
 {
-  $Plack::App::DAIA::Test::VERSION = '0.48';
+  $Plack::App::DAIA::Test::VERSION = '0.50';
 }
 #ABSTRACT: Test DAIA Servers
 
@@ -46,7 +46,7 @@ sub test_daia_psgi {
         my $id = shift;
         my $expected = shift;
         test_psgi $app, sub {
-            my $req = shift->(GET "/?id=".uri_escape($id));
+            my $req = shift->(GET "/?id=".uri_escape($id).'&format=xml');
             my $res = eval { DAIA::parse( $req->content ); };
             if ($@) {
                 $@ =~ s/DAIA::([A-Z]+::)?[a-z_]+\(\)://ig;
@@ -117,7 +117,7 @@ Plack::App::DAIA::Test - Test DAIA Servers
 
 =head1 VERSION
 
-version 0.48
+version 0.50
 
 =head1 SYNOPSIS
 
@@ -197,7 +197,7 @@ Jakob Voss
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by Jakob Voss.
+This software is copyright (c) 2013 by Jakob Voss.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
