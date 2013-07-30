@@ -52,7 +52,7 @@ provedaia - run DAIA test suites
 
 =head1 VERSION
 
-version 0.50
+version 0.51
 
 =head1 SYNOPSIS
 
@@ -109,11 +109,11 @@ If implementation contains its own test suite, one can also call
 
 =head1 AUTHOR
 
-Jakob Voss
+Jakob Voß
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Jakob Voss.
+This software is copyright (c) 2013 by Jakob Voß.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

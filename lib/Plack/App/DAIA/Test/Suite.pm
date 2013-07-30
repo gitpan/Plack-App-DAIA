@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA::Test::Suite;
 {
-  $Plack::App::DAIA::Test::Suite::VERSION = '0.50';
+  $Plack::App::DAIA::Test::Suite::VERSION = '0.51';
 }
 #ABSTRACT: Test DAIA Servers via a test scripting language
 
@@ -13,6 +13,7 @@ use Test::More;
 use Plack::App::DAIA::Test;
 use Scalar::Util qw(reftype blessed);
 use Test::JSON::Entails;
+use JSON;
 use Carp;
 
 sub provedaia {
@@ -32,7 +33,7 @@ sub provedaia {
     } else {
         @lines = split /\n/, $suite;
     }
-    
+
     my $line = 0;
     my $comment = '';
     my $json = undef;
@@ -45,7 +46,7 @@ sub provedaia {
         $json ||= '{ }';
         my $server_name = $server;
         if ( $server !~ qr{^https?://}) {
-            no warnings 'redefine'; # we may load the same twice 
+            no warnings 'redefine'; # we may load the same twice
             $_ = Plack::Util::load_psgi($server);
             if ( ref($_) ) {
                 diag("loaded PSGI from $server");
@@ -63,6 +64,7 @@ sub provedaia {
             my $test_json = $json;
             $vars{id} = $id;
             $test_json =~ s/\$([a-z]+)/defined $vars{$1} ? $vars{$1} : "\$$1"/emg;
+            $test_json = decode_json($test_json);
             if (ref($server)) {
                 test_daia_psgi $server, $id => $test_json, $test_name;
             } else {
@@ -71,7 +73,7 @@ sub provedaia {
         }
     };
 
-    foreach (@lines) { 
+    foreach (@lines) {
         if ($args{end}) {
             $args{end} = 0 if /__END__/;
             next;
@@ -100,7 +102,7 @@ sub provedaia {
             }
             diag( "$key = $value" ) if $args{verbose};
         } elsif( $_ =~ qr/^\s*{/ ) {
-            $json = $_; 
+            $json = $_;
         } else { # identifier
             $comment = '';
             push @ids, $_;
@@ -121,7 +123,7 @@ Plack::App::DAIA::Test::Suite - Test DAIA Servers via a test scripting language
 
 =head1 VERSION
 
-version 0.50
+version 0.51
 
 =head1 SYNOPSIS
 
@@ -198,19 +200,21 @@ L<Test::JSON::Entails>. Here is an example of a test suite:
 
   # the response must contain at least one document with the query id
   { "document" : [
-    { "id" : "$id" } 
+    { "id" : "$id" }
   ] }
 
 See the file C<app.psgi> and C<examples/daia-ubbielefeld.pl> for further
 examples of test suites included in server implementations.
 
+=encoding utf8
+
 =head1 AUTHOR
 
-Jakob Voss
+Jakob Voß
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Jakob Voss.
+This software is copyright (c) 2013 by Jakob Voß.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA::Validator;
 {
-  $Plack::App::DAIA::Validator::VERSION = '0.50';
+  $Plack::App::DAIA::Validator::VERSION = '0.51';
 }
 #ABSTRACT: DAIA validator and converter
 
@@ -28,7 +28,7 @@ BEGIN {
     $FORMATS->{ntriples} = 'DAIA/RDF (NTriples)' if $FORMATS->{ntriples};
     $FORMATS->{rdfxml}   = 'DAIA/RDF (RDF/XML)'  if $FORMATS->{rdfxml};
     foreach (qw(dot svg)) {
-        $FORMATS->{$_} = "DAIA/RDF graph ($_)" if $FORMATS->{$_}; 
+        $FORMATS->{$_} = "DAIA/RDF graph ($_)" if $FORMATS->{$_};
     }
 }
 
@@ -59,7 +59,7 @@ sub call {
     my $informat  = lc($req->param('in'));
     my $outformat = lc($req->param('out')) || lc($req->param('format')) || 'html';
 
-    my $callback  = $req->param('callback') || ""; 
+    my $callback  = $req->param('callback') || "";
     $callback = "" unless $callback =~ /^[a-z][a-z0-9._\[\]]*$/i;
 
     my @daiaobjs;
@@ -96,7 +96,7 @@ sub call {
         $msg = "Data was fetched from URL " . a({href=>$url},escapeHTML($url));
         $msg .= " (" . a({href=>'#result'}, "result...") . ")" if $daia;
         $msg =  div({class=>'msg'},$msg);
-#        $msg .= div({class=>'msg'},"Use ". 
+#        $msg .= div({class=>'msg'},"Use ".
 #                    a({href=>url()."?url=$eurl"},'this URL') .
 #                    " to to directly pass the URL to this script.");
     }
@@ -139,9 +139,9 @@ HTML
       fieldset(
         label('Output: ',
             popup_menu('out',
-                [ sort { $FORMATS->{$a} cmp $FORMATS->{$b} } keys %$FORMATS ], 
+                [ sort { $FORMATS->{$a} cmp $FORMATS->{$b} } keys %$FORMATS ],
                 $outformat, $FORMATS )
-        ), '&#xA0;', 
+        ), '&#xA0;',
         label('JSONP Callback: ', textfield(-name=>'callback',-value=>$callback))
       ).
       fieldset('<input type="submit" value="Convert" class="submit" />')
@@ -155,16 +155,16 @@ HTML
     if ($daia) {
       if ( $informat eq 'xml' or DAIA::guess($data) eq 'xml' ) {
         # TODO: move this into module DAIA (validate option when parsing)
-        my ($schema, $parser); 
+        my ($schema, $parser);
         if ($xsd) {
             if (!$HAS_LIBXML) {
                 $error = "XML::LibXML not found - validating skipped";
             } else {
                 $parser = XML::LibXML->new;
-                $schema = eval { 
-                    XML::LibXML::Schema->new( 
+                $schema = eval {
+                    XML::LibXML::Schema->new(
                         location => catfile(dist_dir('Plack-App-DAIA'),'daia.xsd')
-                    ); 
+                    );
                 };
                 if ($schema) {
                     my $doc = $parser->parse_string( $data );
@@ -208,7 +208,7 @@ HTML
         "<a href='http://search.cpan.org/perldoc?$_'>$_</a> " . ($_->VERSION || '');
     } qw(Plack::App::DAIA::Validator DAIA);
     $html .= <<HTML;
-. Visit the <a href="http://github.com/gbv/daia/">DAIA project at github</a> for sources and details. 
+. Visit the <a href="http://github.com/gbv/daia/">DAIA project at github</a> for sources and details.
 </div></body>
 HTML
 
@@ -227,7 +227,7 @@ Plack::App::DAIA::Validator - DAIA validator and converter
 
 =head1 VERSION
 
-version 0.50
+version 0.51
 
 =head1 SYNOPSIS
 
@@ -236,7 +236,7 @@ version 0.50
 
     builder {
         enable 'JSONP';
-        Plack::App::DAIA::Validator->new( 
+        Plack::App::DAIA::Validator->new(
             xsd      => $location_of_daia_xsd,
             html     => 1,
             xslt     => "/daia.xsl",
@@ -258,13 +258,15 @@ See L<Plack::App::DAIA> for documentation of options C<xslt>, C<html>,
 C<warnings>, and C<xsd>. L<XML::LibXML> must be installed if C<xsd> is set to
 validate DAIA/XML.
 
+=encoding utf8
+
 =head1 AUTHOR
 
-Jakob Voss
+Jakob Voß
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Jakob Voss.
+This software is copyright (c) 2013 by Jakob Voß.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

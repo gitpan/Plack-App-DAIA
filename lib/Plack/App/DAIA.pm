@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA;
 {
-  $Plack::App::DAIA::VERSION = '0.50';
+  $Plack::App::DAIA::VERSION = '0.51';
 }
 #ABSTRACT: DAIA Server as Plack application
 
@@ -155,7 +155,7 @@ Plack::App::DAIA - DAIA Server as Plack application
 
 =head1 VERSION
 
-version 0.50
+version 0.51
 
 =head1 SYNOPSIS
 
@@ -328,13 +328,15 @@ Plack::App::DAIA is derived from L<Plack::Component>. Use L<Plack::DAIA::Test>
 and L<provedaia> (using L<Plack::App::DAIA::Test::Suite>) for writing tests.
 See L<Plack::App::DAIA::Validator> for a DAIA validator and converter.
 
+=encoding utf8
+
 =head1 AUTHOR
 
-Jakob Voss
+Jakob Voß
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Jakob Voss.
+This software is copyright (c) 2013 by Jakob Voß.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

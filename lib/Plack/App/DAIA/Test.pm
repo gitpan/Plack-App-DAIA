@@ -3,7 +3,7 @@ use warnings;
 use v5.10.1;
 package Plack::App::DAIA::Test;
 {
-  $Plack::App::DAIA::Test::VERSION = '0.50';
+  $Plack::App::DAIA::Test::VERSION = '0.51';
 }
 #ABSTRACT: Test DAIA Servers
 
@@ -17,6 +17,7 @@ use Plack::App::DAIA;
 use Scalar::Util qw(reftype blessed);
 use HTTP::Request::Common;
 use Test::JSON::Entails;
+use JSON;
 
 sub test_daia {
     my $app = daia_app(shift) || do {
@@ -99,7 +100,8 @@ sub _if_daia_check {
             $expected->($daia);
         } else {
             local $Test::Builder::Level = $Test::Builder::Level + 2;
-            entails $daia->json, $expected, $test_name;
+            my $json = decode_json( $daia->json );
+            entails $json, $expected, $test_name;
         }
         return $daia;
     }
@@ -117,7 +119,7 @@ Plack::App::DAIA::Test - Test DAIA Servers
 
 =head1 VERSION
 
-version 0.50
+version 0.51
 
 =head1 SYNOPSIS
 
@@ -170,16 +172,17 @@ L<DAIA::Response> object on success (C<$_> is also set to this response).
 
 =head1 METHODS
 
-=head2 test_daia ( $app, $id1 => sub { }, $id2 => ...  )
+=head2 test_daia ( $app, $id1 => $expected, $id2 => ...  )
 
 Calls a DAIA server C<$app>'s retrieve method with one or more identifiers,
-each given a test function. This does not add warnings and the error option
-is ignored (use test_daia_psgi instead if needed).
+each given a test function or an expected JSON structure to be tested with
+L<Test::JSON::Entails>. This does not add warnings and the error option is
+ignored (use test_daia_psgi instead if needed).
 
-=head2 test_daia_psgi ( $app, $id => sub { }, $id => ...  )
+=head2 test_daia_psgi ( $app, $id => $expected, $id => ...  )
 
 Calls a DAIA server C<$app> as L<PSGI> application with one or more
-identifiers, each given a test function.
+identifiers, each given a test function or an expected JSON structure.
 
 =head2 daia_app ( $plack_app_daia | $url | $code )
 
@@ -191,13 +194,15 @@ to be used internally only!
 
 L<Plack::App::DAIA::Test::Suite> and L<provedaia>.
 
+=encoding utf8
+
 =head1 AUTHOR
 
-Jakob Voss
+Jakob Voß
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Jakob Voss.
+This software is copyright (c) 2013 by Jakob Voß.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
