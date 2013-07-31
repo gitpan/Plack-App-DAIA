@@ -3,7 +3,7 @@ use warnings;
 use v5.10.1;
 package Plack::App::DAIA::Test;
 {
-  $Plack::App::DAIA::Test::VERSION = '0.51';
+  $Plack::App::DAIA::Test::VERSION = '0.52';
 }
 #ABSTRACT: Test DAIA Servers
 
@@ -70,7 +70,7 @@ sub daia_app {
         my $baseurl = $app . ($app =~ /\?/ ? '&id=' : '?id=');
         $app = sub {
             my $id = shift;
-            my $url = $baseurl.$id;
+            my $url = $baseurl.$id."&format=json";
             my @daia = eval { DAIA->parse($url) };
             if (!@daia) {
                 $@ ||= '';
@@ -119,7 +119,7 @@ Plack::App::DAIA::Test - Test DAIA Servers
 
 =head1 VERSION
 
-version 0.51
+version 0.52
 
 =head1 SYNOPSIS
 

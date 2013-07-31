@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA::Validator;
 {
-  $Plack::App::DAIA::Validator::VERSION = '0.51';
+  $Plack::App::DAIA::Validator::VERSION = '0.52';
 }
 #ABSTRACT: DAIA validator and converter
 
@@ -227,7 +227,7 @@ Plack::App::DAIA::Validator - DAIA validator and converter
 
 =head1 VERSION
 
-version 0.51
+version 0.52
 
 =head1 SYNOPSIS
 

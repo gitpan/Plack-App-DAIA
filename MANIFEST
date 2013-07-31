@@ -58,6 +58,7 @@ share/xmlverbatim.xsl
 t/SampleDAIAApp.pm
 t/author-critic.t
 t/basic.t
+t/client.t
 t/compile.t
 t/docid.json
 t/errors.t
