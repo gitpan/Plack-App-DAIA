@@ -6,6 +6,7 @@ Makefile.PL
 README
 app.psgi
 bin/provedaia
+cpanfile
 examples/daia-ubbielefeld.pl
 lib/Plack/App/DAIA.pm
 lib/Plack/App/DAIA/Test.pm

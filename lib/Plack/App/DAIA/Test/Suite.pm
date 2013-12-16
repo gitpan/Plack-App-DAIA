@@ -1,9 +1,6 @@
 use strict;
 use warnings;
 package Plack::App::DAIA::Test::Suite;
-{
-  $Plack::App::DAIA::Test::Suite::VERSION = '0.52';
-}
 #ABSTRACT: Test DAIA Servers via a test scripting language
 
 use base 'Test::Builder::Module';
@@ -113,9 +110,11 @@ sub provedaia {
 
 1;
 
-
 __END__
+
 =pod
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -123,7 +122,7 @@ Plack::App::DAIA::Test::Suite - Test DAIA Servers via a test scripting language
 
 =head1 VERSION
 
-version 0.52
+version 0.53
 
 =head1 SYNOPSIS
 
@@ -206,8 +205,6 @@ L<Test::JSON::Entails>. Here is an example of a test suite:
 See the file C<app.psgi> and C<examples/daia-ubbielefeld.pl> for further
 examples of test suites included in server implementations.
 
-=encoding utf8
-
 =head1 AUTHOR
 
 Jakob Voß
@@ -220,4 +217,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

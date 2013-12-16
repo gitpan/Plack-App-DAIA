@@ -1,9 +1,6 @@
 use strict;
 use warnings;
 package Plack::App::DAIA;
-{
-  $Plack::App::DAIA::VERSION = '0.52';
-}
 #ABSTRACT: DAIA Server as Plack application
 
 use v5.10.1;
@@ -36,7 +33,7 @@ sub prepare_app {
     $self->xslt('daia.xsl') if ($self->xslt // '') =~ /^\d+$/ or (!$self->xslt && $self->html);
 
     if ($self->xslt) {
-        if ($self->html and !ref($self->html)) {
+        if (defined $self->html and !ref $self->html) {
             carp "html => 1 is deprecated, use xslt => 1 instead";
             $self->html(0);
         }
@@ -150,9 +147,11 @@ sub as_psgi {
 
 1;
 
-
 __END__
+
 =pod
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -160,7 +159,7 @@ Plack::App::DAIA - DAIA Server as Plack application
 
 =head1 VERSION
 
-version 0.52
+version 0.53
 
 =head1 SYNOPSIS
 
@@ -230,7 +229,7 @@ is in C<$ENV{PATH}>.
 =back
 
 This module automatically adds appropriate warnings and error messages. A
-simple HTML interface based on client side XSLT is added with option C<html>.
+simple HTML interface based on client side XSLT is added with option C<xslt>.
 
 =head1 METHODS
 
@@ -331,8 +330,6 @@ Plack::App::DAIA is derived from L<Plack::Component>. Use L<Plack::DAIA::Test>
 and L<provedaia> (using L<Plack::App::DAIA::Test::Suite>) for writing tests.
 See L<Plack::App::DAIA::Validator> for a DAIA validator and converter.
 
-=encoding utf8
-
 =head1 AUTHOR
 
 Jakob Voß
@@ -345,4 +342,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

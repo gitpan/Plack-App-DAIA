@@ -1,9 +1,6 @@
 use strict;
 use warnings;
 package Plack::App::DAIA::Validator;
-{
-  $Plack::App::DAIA::Validator::VERSION = '0.52';
-}
 #ABSTRACT: DAIA validator and converter
 
 use CGI qw(:standard);
@@ -217,9 +214,11 @@ HTML
 
 1;
 
-
 __END__
+
 =pod
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -227,7 +226,7 @@ Plack::App::DAIA::Validator - DAIA validator and converter
 
 =head1 VERSION
 
-version 0.52
+version 0.53
 
 =head1 SYNOPSIS
 
@@ -258,8 +257,6 @@ See L<Plack::App::DAIA> for documentation of options C<xslt>, C<html>,
 C<warnings>, and C<xsd>. L<XML::LibXML> must be installed if C<xsd> is set to
 validate DAIA/XML.
 
-=encoding utf8
-
 =head1 AUTHOR
 
 Jakob Voß
@@ -272,4 +269,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

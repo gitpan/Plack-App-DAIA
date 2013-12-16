@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use 5.010001;
+use 5.010000;
 
 use ExtUtils::MakeMaker 6.30;
 
@@ -12,7 +12,7 @@ install_share dist => "share";
 
 my %WriteMakefileArgs = (
   "ABSTRACT" => "DAIA Server as Plack application",
-  "AUTHOR" => "Jakob Vo\303\237",
+  "AUTHOR" => "Jakob Vo\x{df}",
   "BUILD_REQUIRES" => {},
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30",
@@ -27,7 +27,7 @@ my %WriteMakefileArgs = (
   "PREREQ_PM" => {
     "CGI" => 0,
     "Carp" => 0,
-    "DAIA" => "0.41",
+    "DAIA" => "0.43",
     "Encode" => 0,
     "File::ShareDir" => 0,
     "File::Spec::Functions" => 0,
@@ -46,48 +46,46 @@ my %WriteMakefileArgs = (
     "Test::JSON::Entails" => 0,
     "Test::More" => 0,
     "Try::Tiny" => 0,
-    "URI::Escape" => 0,
-    "base" => 0,
-    "parent" => 0,
-    "strict" => 0,
-    "warnings" => 0
+    "URI::Escape" => 0
   },
-  "TEST_REQUIRES" => {
-    "Test::Builder::Tester" => 0,
-    "Test::Warn" => 0,
-    "lib" => 0
-  },
-  "VERSION" => "0.52",
+  "TEST_REQUIRES" => {},
+  "VERSION" => "0.53",
   "test" => {
     "TESTS" => "t/*.t"
   }
 );
 
 
-unless ( eval { ExtUtils::MakeMaker->VERSION(6.63_03) } ) {
-  my $tr = delete $WriteMakefileArgs{TEST_REQUIRES};
-  my $br = $WriteMakefileArgs{BUILD_REQUIRES};
-  for my $mod ( keys %$tr ) {
-    if ( exists $br->{$mod} ) {
-      $br->{$mod} = $tr->{$mod} if $tr->{$mod} > $br->{$mod};
-    }
-    else {
-      $br->{$mod} = $tr->{$mod};
-    }
-  }
-}
+my %FallbackPrereqs = (
+  "CGI" => 0,
+  "Carp" => 0,
+  "DAIA" => "0.43",
+  "Encode" => 0,
+  "File::ShareDir" => 0,
+  "File::Spec::Functions" => 0,
+  "Getopt::Long" => 0,
+  "HTTP::Request::Common" => 0,
+  "JSON" => 0,
+  "LWP::Simple" => 0,
+  "Plack::Component" => 0,
+  "Plack::Middleware::Static" => 0,
+  "Plack::Request" => 0,
+  "Plack::Test" => 0,
+  "Plack::Util::Accessor" => 0,
+  "Pod::Usage" => 0,
+  "Scalar::Util" => 0,
+  "Test::Builder::Module" => 0,
+  "Test::JSON::Entails" => 0,
+  "Test::More" => 0,
+  "Try::Tiny" => 0,
+  "URI::Escape" => 0
+);
 
-unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {
-  my $br = delete $WriteMakefileArgs{BUILD_REQUIRES};
-  my $pp = $WriteMakefileArgs{PREREQ_PM};
-  for my $mod ( keys %$br ) {
-    if ( exists $pp->{$mod} ) {
-      $pp->{$mod} = $br->{$mod} if $br->{$mod} > $pp->{$mod};
-    }
-    else {
-      $pp->{$mod} = $br->{$mod};
-    }
-  }
+
+unless ( eval { ExtUtils::MakeMaker->VERSION(6.63_03) } ) {
+  delete $WriteMakefileArgs{TEST_REQUIRES};
+  delete $WriteMakefileArgs{BUILD_REQUIRES};
+  $WriteMakefileArgs{PREREQ_PM} = \%FallbackPrereqs;
 }
 
 delete $WriteMakefileArgs{CONFIGURE_REQUIRES}

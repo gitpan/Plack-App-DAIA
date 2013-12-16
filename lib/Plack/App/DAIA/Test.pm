@@ -2,9 +2,6 @@ use strict;
 use warnings;
 use v5.10.1;
 package Plack::App::DAIA::Test;
-{
-  $Plack::App::DAIA::Test::VERSION = '0.52';
-}
 #ABSTRACT: Test DAIA Servers
 
 use base 'Test::Builder::Module';
@@ -109,9 +106,11 @@ sub _if_daia_check {
 
 1;
 
-
 __END__
+
 =pod
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -119,7 +118,7 @@ Plack::App::DAIA::Test - Test DAIA Servers
 
 =head1 VERSION
 
-version 0.52
+version 0.53
 
 =head1 SYNOPSIS
 
@@ -194,8 +193,6 @@ to be used internally only!
 
 L<Plack::App::DAIA::Test::Suite> and L<provedaia>.
 
-=encoding utf8
-
 =head1 AUTHOR
 
 Jakob Voß
@@ -208,4 +205,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
