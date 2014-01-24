@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use 5.010000;
+use 5.010001;
 
 use ExtUtils::MakeMaker 6.30;
 
@@ -26,30 +26,24 @@ my %WriteMakefileArgs = (
   "NAME" => "Plack::App::DAIA",
   "PREREQ_PM" => {
     "CGI" => 0,
-    "Carp" => 0,
     "DAIA" => "0.43",
-    "Encode" => 0,
     "File::ShareDir" => 0,
     "File::Spec::Functions" => 0,
     "Getopt::Long" => 0,
     "HTTP::Request::Common" => 0,
     "JSON" => 0,
     "LWP::Simple" => 0,
-    "Plack::Component" => 0,
-    "Plack::Middleware::Static" => 0,
-    "Plack::Request" => 0,
-    "Plack::Test" => 0,
-    "Plack::Util::Accessor" => 0,
+    "Plack" => "1.0",
     "Pod::Usage" => 0,
-    "Scalar::Util" => 0,
     "Test::Builder::Module" => 0,
     "Test::JSON::Entails" => 0,
-    "Test::More" => 0,
     "Try::Tiny" => 0,
     "URI::Escape" => 0
   },
-  "TEST_REQUIRES" => {},
-  "VERSION" => "0.53",
+  "TEST_REQUIRES" => {
+    "Test::Warn" => 0
+  },
+  "VERSION" => "0.55",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -58,25 +52,18 @@ my %WriteMakefileArgs = (
 
 my %FallbackPrereqs = (
   "CGI" => 0,
-  "Carp" => 0,
   "DAIA" => "0.43",
-  "Encode" => 0,
   "File::ShareDir" => 0,
   "File::Spec::Functions" => 0,
   "Getopt::Long" => 0,
   "HTTP::Request::Common" => 0,
   "JSON" => 0,
   "LWP::Simple" => 0,
-  "Plack::Component" => 0,
-  "Plack::Middleware::Static" => 0,
-  "Plack::Request" => 0,
-  "Plack::Test" => 0,
-  "Plack::Util::Accessor" => 0,
+  "Plack" => "1.0",
   "Pod::Usage" => 0,
-  "Scalar::Util" => 0,
   "Test::Builder::Module" => 0,
   "Test::JSON::Entails" => 0,
-  "Test::More" => 0,
+  "Test::Warn" => 0,
   "Try::Tiny" => 0,
   "URI::Escape" => 0
 );

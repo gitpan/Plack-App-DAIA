@@ -67,3 +67,4 @@ t/retrieve.t
 t/subclass.t
 t/suite.t
 t/test.t
+t/validator.t

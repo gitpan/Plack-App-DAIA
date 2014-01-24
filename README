@@ -1,11 +1,11 @@
 
 
 This archive contains the distribution Plack-App-DAIA,
-version 0.53:
+version 0.55:
 
   DAIA Server as Plack application
 
-This software is copyright (c) 2013 by Jakob Voß.
+This software is copyright (c) 2014 by Jakob Voß.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

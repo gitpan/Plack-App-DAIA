@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package Plack::App::DAIA::Test::Suite;
 #ABSTRACT: Test DAIA Servers via a test scripting language
-
+our $VERSION = '0.55'; #VERSION
 use base 'Test::Builder::Module';
 our @EXPORT = qw(provedaia);
 
@@ -122,7 +122,7 @@ Plack::App::DAIA::Test::Suite - Test DAIA Servers via a test scripting language
 
 =head1 VERSION
 
-version 0.53
+version 0.55
 
 =head1 SYNOPSIS
 
@@ -211,7 +211,7 @@ Jakob Voß
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Jakob Voß.
+This software is copyright (c) 2014 by Jakob Voß.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
